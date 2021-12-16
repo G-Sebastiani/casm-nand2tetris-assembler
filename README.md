@@ -1,4 +1,4 @@
-# casm-nand2tetris-assembler
+# casm-nand2tetris assembler in awk
 Cross assembler for Nand2Tetris Hack Computer written in awk.
 
 casm.awk - Cross assembler for Nand2Tetris Hack Computer written in awk.
