@@ -10,9 +10,8 @@
 #			Cross assembler for virtual computer built in Nand2Tetris. 
 #
 # Usage:	casm.awk [filename] [filename] > [filename]
-#				Inputs	[filename].asm file, same file twice, first to identify labels
-#						[filename].asm file, same file twice, second to transform instructions
-#				Outputs	[filename].hack, file to pipe putput to
+#				Inputs	[filename].asm file with assembler code
+#				Outputs	[filename].hack file to pipe "binary" putput to
 BEGIN {
 	cinstr["0"]   = "0101010"; # 7 bit binary for each mnemonic (acccccc)
 	cinstr["1"]   = "0111111";
@@ -85,15 +84,15 @@ BEGIN {
 	nextFreeMem = 16; # Points to next unused memory address
 }
 #============================================================
-# Main parsing:
+# First iteration:
 #============================================================
 # Remove comments and spaces
 { sub("//.*$", ""); gsub("[[:space:]]", ""); }
-# First file/iteration is to identify and store label addresses
-/^( )*\(/      		{ if (NR == FNR) { address_label($1); }}
-# Second file/iteration is to translate instructions
-/^( )*@/			{ currentInstruction = currentInstruction + 1; if (NR > FNR) { a_instruction($1); }}
-/^( )*[0ADM]*[=;]/	{ currentInstruction = currentInstruction + 1; if (NR > FNR) { c_instruction($1 ";JNN"); }}
+# Identifies and stores label addresses
+/^( )*\(/      		{ address_label($1); }
+# Keeps A- and C-instructions in an array for second iteration in section END
+/^( )*@/			{ imem[currentInstruction] = $1; currentInstruction = currentInstruction + 1 }
+/^( )*[0ADM]*[=;]/	{ imem[currentInstruction] = $1 ";JNN"; currentInstruction = currentInstruction + 1 }
 #------------------------------------------------------------
 # Identifies labels and stores addresses
 #------------------------------------------------------------
@@ -107,9 +106,8 @@ function address_label(instr) {
 function a_instruction(instr) {
 	ret = substr(instr, 2, length(instr) - 1);
 	# Numeric value:
-	if (ret + 0 == ret) {
+	if (ret + 0 == ret)
 		ret = bits2str(int(ret));
-	}
 	else {
 		# Variable name:
 		if (ret in symbols)
@@ -129,12 +127,10 @@ function a_instruction(instr) {
 #------------------------------------------------------------
 function c_instruction(instr) {
 	# Destination part is before "=" in string
-	if (index(instr, "=") > 1) {
+	if (index(instr, "=") > 1)
 		d = substr(instr, 1, index(instr, "=") - 1);
-	}
-	else {
+	else
 		d = "n";
-	}
 	# Operation part is after "=" and before ";"
 	# Jump part is after ";"
 	c = substr(instr, index(instr, "=")+1, length(instr) - index(instr, "="));
@@ -143,10 +139,9 @@ function c_instruction(instr) {
 		c =  substr(c, 1, index(c, ";") - 1);
 		j = substr(instr, index(instr, ";") + 1, index(instr, ";") + 3);
 	}
-	else {
+	else
 		# Does not contain a jump part:
 		j = "JNN";
-	}
 	# Format: 111accccccdddjjj
 	print "111" cinstr[c] dest[d] jump[substr(j, 1, 3)];
 }
@@ -162,4 +157,17 @@ function bits2str(bits) {
     while (length(data) < 16)
         data = "0" data;
     return data;
+}
+#============================================================
+# Second iteration:
+#============================================================
+END {
+	i = 0
+	for (i in imem) {
+		tmp = imem[i]
+		if (substr(tmp, 1, 1) == "@")
+			a_instruction(tmp)
+		else
+			c_instruction(tmp)
+	}
 }
