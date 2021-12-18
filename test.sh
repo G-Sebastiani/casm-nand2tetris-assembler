@@ -3,15 +3,14 @@
 # Runs casm with 4 input files and compares the output files to reference files
 #
 echo "Add"
-/usr/bin/awk -f casm.awk Add.asm Add.asm > Add.hack
-/usr/bin/awk -f compare.awk Add.cmp Add.hack
+./casm.awk ./data/Add.asm > ./data/Add.hack
+/usr/bin/awk -f compare.awk ./data/Add.cmp ./data/Add.hack
 echo "Max"
-/usr/bin/awk -f casm.awk Max.asm Max.asm > Max.hack
-/usr/bin/awk -f compare.awk Max.cmp Max.hack
+./casm.awk ./data/Max.asm > ./data/Max.hack
+/usr/bin/awk -f compare.awk ./data/Max.cmp ./data/Max.hack
 echo "Rect"
-/usr/bin/awk -f casm.awk Rect.asm Rect.asm > Rect.hack
-/usr/bin/awk -f compare.awk Rect.cmp Rect.hack
+./casm.awk ./data/Rect.asm > ./data/Rect.hack
+/usr/bin/awk -f compare.awk ./data/Rect.cmp ./data/Rect.hack
 echo "Pong"
-/usr/bin/awk -f casm.awk Pong.asm Pong.asm > Pong.hack
-/usr/bin/awk -f compare.awk Pong.cmp Pong.hack
-
+./casm.awk ./data/Pong.asm > ./data/Pong.hack
+/usr/bin/awk -f compare.awk ./data/Pong.cmp ./data/Pong.hack
