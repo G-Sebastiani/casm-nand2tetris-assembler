@@ -9,7 +9,7 @@
 # 	test		- Build and run unit test
 # 	all			- Build all
 # 	clean		- Remove intermediate files
-#   submit		- Creates Zip file to submit
+# 	submit		- Creates Zip file to submit
 HACK_FILES:=./data/Add.hack ./data/Max.hack ./data/Rect.hack ./data/Pong.hack
 #============================================================
 # Build and run unit test:
